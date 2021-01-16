@@ -4,6 +4,13 @@
 #include <QtGui>
 #include <vector>
 
+struct QPointO
+{
+    QPoint p;
+    double omega;
+    double length;
+};
+
 class Algorithms
 {
 public:
@@ -17,6 +24,7 @@ public:
     void qh(int s, int e, QPolygon &points, QPolygon &ch);
     QPolygon sweepLine(QPolygon &points);
     static QPolygon removeDuplicate(QPolygon &points);
+    QPolygon grahamScan(QPolygon &points);
 };
 
 #endif // ALGORITHMS_H

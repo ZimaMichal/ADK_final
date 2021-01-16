@@ -17,11 +17,13 @@ Widget::~Widget()
 
 void Widget::on_pushButton_clicked()
 {
+    Algorithms a;
     //Get points
     QPolygon points = ui->Canvas->getPoints();
 
     //Create Convex hull
     QPolygon ch;
+
     Algorithms alg;
     QElapsedTimer timer;
     timer.start();
@@ -34,15 +36,20 @@ void Widget::on_pushButton_clicked()
         ch = alg.qhull(points);
 
     //Sweep line
-    else
+    else if (ui->comboBox->currentIndex()==2)
         ch = alg.sweepLine(points);
 
-    //Set Convex hull
-    ui -> Canvas -> setCH(ch);
-    ui->label_3->setText("Time:" + QString::number(timer.elapsed()) + "ms");
+    //Graham scan
+    else
+        ch = alg.grahamScan(points);
 
+    //Set Convex hull
+
+    ui -> Canvas -> setCH(ch);
     //Repaint screen
     repaint();
+
+    ui->label_3->setText("Time:" + QString::number(timer.elapsed()) + "ms");
 }
 
 void Widget::on_pushButton_2_clicked()

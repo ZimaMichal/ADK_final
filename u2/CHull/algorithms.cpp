@@ -1,6 +1,7 @@
 #include "algorithms.h"
 #include "sortbyy.h"
 #include "sortbyx.h"
+#include "sortbyangle.h"
 #include <cmath>
 
 Algorithms::Algorithms()
@@ -309,6 +310,98 @@ QPolygon Algorithms::removeDuplicate(QPolygon &points)
 }
 
 
+QPolygon Algorithms::grahamScan(QPolygon &points)
+{
+    //Convex hull
+    QPolygon ch;
+
+    //Sort points by Y
+    std::sort(points.begin(), points.end(), sortByY());
+
+    //Finding pivot q
+    QPoint q = points[0];
+
+    //Add pivot to convex hull
+    ch.push_back(q);
+
+    //Get point r needed for calculating angles
+    QPoint r(q.x()+1,q.y());
+
+    //Points sorted by omega
+    std::vector<QPointO> pointso;
+    QPointO pointq;
+    pointq.p.setX(points[0].x());
+    pointq.p.setY(points[0].y());
+    pointq.omega = 0;
+    pointq.length = 0;
+    pointso.push_back(pointq);
+
+    int n = points.size();
+
+    //Auxiliary vector for points with same omega
+    std::vector<int> index_vec;
 
 
+    //Sort by omega
+    for (int i = 1; i < n; i++)
+    {
+        double omega = getAngle(q, r, q, points[i]);
+        double dist = sqrt((q.x() - points[i].x())*(q.x() - points[i].x())+(q.y() - points[i].y())*(q.y() - points[i].y()));
+        QPointO point;
+        point.p.setX(points[i].x());
+        point.p.setY(points[i].y());
+        point.omega = omega;
+        point.length = dist;
+        pointso.push_back(point);
+    }
+
+    std::sort(pointso.begin(), pointso.end(), sortByAngle());
+    points.clear();
+    points.push_back(q);
+    std::vector<int> ipot;
+
+    //Remove points with same omega
+    for (int i = 1; i < pointso.size(); i++)
+    {
+        if (fabs(pointso[i].omega - pointso[(i+1)%n].omega) < 10e-6)
+        {
+            ipot.push_back(i);
+        }
+        else if (!((fabs(pointso[i].omega - pointso[(i+1)%n].omega) < 10e-6)) && (ipot.empty()))
+        {
+            QPoint point;
+            point.setX(pointso[i].p.x());
+            point.setY(pointso[i].p.y());
+            points.push_back(point);
+        }
+        else
+        {
+            QPoint point;
+            point.setX(pointso[ipot.back()+1].p.x());
+            point.setY(pointso[ipot.back()+1].p.y());
+            points.push_back(point);
+            ipot.clear();
+
+        }
+    }
+
+    //Add point with minimum angle to convex hull
+    ch.push_back(points[1]);
+    int j = 2;
+
+    //Process all points
+    while (j < points.size())
+    {
+        //Check if the new point is in the left half plane
+        if (getPointLinePosition(points[j], ch[ch.size() - 2], ch.back()) == 1)
+        {
+            ch.push_back(points[j]);
+            j += 1;
+        }
+        else
+            ch.removeLast();
+    }
+
+    return ch;
+}
 

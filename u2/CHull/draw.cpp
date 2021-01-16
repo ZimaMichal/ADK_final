@@ -38,9 +38,17 @@ void Draw::paintEvent(QPaintEvent *e)
         qp.drawEllipse(points[i].x() - r,points[i].y() - r, 2 * r, 2 * r);
     }
 
+    //Draw CH points
+
+    for(int i = 0; i < ch.size(); i++)
+    {
+        qp.setPen(Qt::cyan);
+        qp.drawEllipse(ch[i].x() - r,ch[i].y() - r, 2 * r, 2 * r);
+    }
     //Coloured line
     qp.setPen(Qt::cyan);
     qp.drawPolygon(ch);
+
     //End draw
     qp.end();
 }
