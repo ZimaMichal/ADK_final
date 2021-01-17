@@ -4,6 +4,7 @@
 #include "triangle.h"
 #include "draw.h"
 #include <QFileDialog>
+#include <QMessageBox>
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -26,7 +27,15 @@ void Widget::on_pushButton_7_clicked()
     //Create contour lines
     Algorithms a;
     std::vector<Edge> dt;
-
+    std::vector<QPoint3D> points=ui->Canvas->getPoints();
+    if (points.empty())
+        {
+            QMessageBox messageBox;
+            messageBox.critical(0,"Error","Load points from file");
+            messageBox.setFixedSize(500,200);
+        }
+        else
+    {
     //DT needs to be created
     if(dt.size() == 0)
     {
@@ -51,6 +60,7 @@ void Widget::on_pushButton_7_clicked()
     //Repaint
     repaint();
 }
+}
 
 
 void Widget::on_pushButton_11_clicked()
@@ -73,7 +83,6 @@ void Widget::on_pushButton_12_clicked()
     std::vector<Edge> &contours = ui->Canvas->getContours();
     std::vector<Edge> &main_contours = ui->Canvas->getMainContours();
     std::vector<Edge> &label_contours = ui->Canvas->getContoursLabel();
-;
 
     //Clear DT and contour lines, main contour and contour label
     dt.clear();
@@ -84,7 +93,6 @@ void Widget::on_pushButton_12_clicked()
     //Repaint
     repaint();
 }
-
 
 void Widget::on_lineEdit_editingFinished()
 {
@@ -128,7 +136,15 @@ void Widget::on_pushButton_2_clicked()
 
     Algorithms a;
     std::vector<Edge> dt;
-
+    std::vector<QPoint3D> points=ui->Canvas->getPoints();
+    if (points.empty())
+        {
+            QMessageBox messageBox;
+            messageBox.critical(0,"Error","Load points from file");
+            messageBox.setFixedSize(500,200);
+        }
+        else
+    {
     //DT needs to be created
     if(dt.size() == 0)
     {
@@ -150,6 +166,7 @@ void Widget::on_pushButton_2_clicked()
 
     //Repaint
     repaint();
+}
 }
 
 
@@ -194,6 +211,24 @@ void Widget::on_pushButton_4_clicked()
 
 void Widget::on_pushButton_clicked()
 {
+    //Get all
+    std::vector<QPoint3D> &points = ui->Canvas->getPoints();
+    std::vector<Edge> &dt = ui->Canvas->getDT();
+    std::vector<Edge> &contours = ui->Canvas->getContours();
+    std::vector<Triangle> &dtm = ui->Canvas->getDTM();
+    std::vector<Edge> &main_contours = ui->Canvas->getMainContours();
+    std::vector<Edge> &label_contours = ui->Canvas->getContoursLabel();
+    std::vector<Triangle> &aspect_dtm = ui->Canvas->getAspectDTM();
+
+    //Clear all
+    points.clear();
+    dt.clear();
+    contours.clear();
+    dtm.clear();
+    main_contours.clear();
+    label_contours.clear();
+    aspect_dtm.clear();
+
     QString path(QFileDialog::getOpenFileName(this, tr("Open file with points"), "../", tr("Text Files (*.txt)")));
     std::string path_std = path.toStdString();
     ui->Canvas->loadFile(path_std);
@@ -234,6 +269,14 @@ void Widget::on_pushButton_6_clicked()
 
     std::vector<QPoint3D> points = ui->Canvas->getPoints();
 
+    if (points.empty())
+        {
+            QMessageBox messageBox;
+            messageBox.critical(0,"Error","Load points from file");
+            messageBox.setFixedSize(500,200);
+        }
+        else
+    {
     Algorithms a;
     dt = a.DT(points);
     ui->Canvas->setDT(dt);
@@ -241,6 +284,7 @@ void Widget::on_pushButton_6_clicked()
     std::vector<Triangle> aspect_dtm = a.analyzeDTM(dt);
     ui->Canvas->setAspectDTM(aspect_dtm);
     repaint();
+    }
 }
 
 void Widget::on_pushButton_8_clicked()
